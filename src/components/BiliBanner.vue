@@ -60,48 +60,76 @@ function draw(image, config) {
     },
   }
 }
-function initLayer(canvas) {
-  const { width, height } = placeholder.value.getBoundingClientRect()
-  canvas.width = width
-  canvas.height = height
+function resize(layers) {
+  return {
+    with(placeholder) {
+      const { width, height } = placeholder.value.getBoundingClientRect()
+      for (const canvas of Object.values(layers)) {
+        canvas.width = width
+        canvas.height = height
+      }
+    },
+  }
 }
 onMounted(async () => {
-  initLayer(layers.bg)
+  resize(layers).with(placeholder)
+
+  window.addEventListener('resize', () => {
+    resize(layers).with(placeholder)
+    images.bg && draw(images.bg, { sw: 3000, sh: 250, blur: 6 }).to(layers.bg)
+    images.twotwo &&
+      draw(images.twotwo, { sw: 3000, sh: 275, blur: 0 }).to(layers.twotwo)
+    images.land &&
+      draw(images.land, { sw: 3000, sh: 250, blur: 5 }).to(layers.land)
+    images.ground &&
+      draw(images.ground, { sx: -100, sw: 3000, sh: 250, blur: 4 }).to(
+        layers.ground
+      )
+    images.grass &&
+      draw(images.grass, { sx: 150, sw: 3000, sh: 275, blur: 3 }).to(
+        layers.grass
+      )
+    images.threethree &&
+      draw(images.threethree, { sw: 3000, sh: 275, blur: 2 }).to(
+        layers.threethree
+      )
+  })
+
   watch(
     () => images.bg,
-    (bg) => draw(bg, { sw: 3000, sh: 250, blur: 6 }).to(layers.bg)
+    () => draw(images.bg, { sw: 3000, sh: 250, blur: 6 }).to(layers.bg)
   )
 
-  initLayer(layers.twotwo)
   watch(
     () => images.twotwo,
-    (twotwo) => draw(twotwo, { sw: 3000, sh: 275, blur: 0 }).to(layers.twotwo)
+    () => draw(images.twotwo, { sw: 3000, sh: 275, blur: 0 }).to(layers.twotwo)
   )
 
-  initLayer(layers.land)
   watch(
     () => images.land,
-    (land) => draw(land, { sw: 3000, sh: 250, blur: 5 }).to(layers.land)
+    () => draw(images.land, { sw: 3000, sh: 250, blur: 5 }).to(layers.land)
   )
 
-  initLayer(layers.ground)
   watch(
     () => images.ground,
-    (ground) => draw(ground, { sx: -100, sw: 3000, sh: 250, blur: 4 }).to(layers.ground)
+    () =>
+      draw(images.ground, { sx: -100, sw: 3000, sh: 250, blur: 4 }).to(
+        layers.ground
+      )
   )
 
-  initLayer(layers.grass)
   watch(
     () => images.grass,
-    (grass) =>
-      draw(grass, { sx: 150, sw: 3000, sh: 275, blur: 3 }).to(layers.grass)
+    () =>
+      draw(images.grass, { sx: 150, sw: 3000, sh: 275, blur: 3 }).to(
+        layers.grass
+      )
   )
 
-  initLayer(layers.threethree)
   watch(
     () => images.threethree,
-    (threethree) =>
-      draw(threethree, { sw: 3000, sh: 275, blur: 2 }).to(
+    () =>
+      draw(images.threethree, { sw: 3000, sh: 275, blur: 2 }).to(
         layers.threethree
       )
   )
@@ -118,6 +146,7 @@ onMounted(async () => {
   &-placeholder {
     width: 100%;
     height: 9.375vw;
+    min-height: 95px;
     opacity: 0.3;
   }
 
