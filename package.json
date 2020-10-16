@@ -5,10 +5,9 @@
     "dev": "vite",
     "build": "vite build"
   },
-  "dependencies": {
-    "vue": "^3.0.0-rc.1"
-  },
+  "dependencies": {},
   "devDependencies": {
+    "vue": "^3.0.0-rc.1",
     "@vue/compiler-sfc": "^3.0.0-rc.1",
     "postcss-nesting": "^7.0.1",
     "sass": "^1.27.0",

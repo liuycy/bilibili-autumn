@@ -64,7 +64,7 @@ export const layers = reactive({
 })
 const config = {
   bg: { sw: 3000, sh: 250, blur: 6 },
-  twotwo: { sw: 3000, sh: 275, blur: 0 },
+  twotwo: { sw: 3000, sh: 275, blur: 1 },
   land: { sw: 3000, sh: 250, blur: 5 },
   ground: { sx: -100, sw: 3000, sh: 250, blur: 4 },
   grass: { sx: 150, sw: 3000, sh: 275, blur: 3 },
@@ -75,6 +75,8 @@ function draw(image, config) {
   return {
     to(canvas) {
       const ctx = canvas.getContext('2d')
+      ctx.imageSmoothingEnabled = true
+      ctx.clearRect(0, 0, canvas.width, canvas.height)
       ctx.filter = `blur(${b}px)`
       ctx.drawImage(image, sx, sy, sw, sh, 0, 0, canvas.width, canvas.height)
     },
@@ -82,8 +84,7 @@ function draw(image, config) {
 }
 function resize(layers) {
   return {
-    with(placeholder) {
-      const { width, height } = placeholder.value.getBoundingClientRect()
+    with({ width, height }) {
       for (const canvas of Object.values(layers)) {
         canvas.width = width
         canvas.height = height
@@ -92,10 +93,10 @@ function resize(layers) {
   }
 }
 onMounted(async () => {
-  resize(layers).with(placeholder)
+  resize(layers).with(placeholder.value.getBoundingClientRect())
 
   window.addEventListener('resize', () => {
-    resize(layers).with(placeholder)
+    resize(layers).with(placeholder.value.getBoundingClientRect())
     images.bg && draw(images.bg, config.bg).to(layers.bg)
     images.twotwo && draw(images.twotwo, config.twotwo).to(layers.twotwo)
     images.land && draw(images.land, config.land).to(layers.land)
@@ -120,6 +121,135 @@ onMounted(async () => {
     images.twotwo && draw(images.twotwo, config.twotwo).to(layers.twotwo)
     setTimeout(wink, 4800)
   }
+
+  function render(ratio) {
+    if (ratio < 0 && images.bg) {
+      let c = { ...config.bg }
+      c.blur = c.blur + ratio * c.blur
+      draw(images.bg, c).to(layers.bg)
+    }
+
+    if (images.twotwo) {
+      let c = config.twotwo
+      if (ratio > 0) {
+        c.blur = 1 + 2 * ratio
+      } else {
+        c.blur = 1 + 1 * ratio
+      }
+      draw(images.twotwo, c).to(layers.twotwo)
+    }
+
+    if (images.land) {
+      let c = { ...config.land }
+      let rb = ratio * c.blur
+      if (rb < 2) {
+        c.blur = c.blur - (rb / 2) * c.blur + 1
+      } else {
+        c.blur = rb - 2
+      }
+
+      c.sx = (c.sx || 0) - ratio * 15
+      draw(images.land, c).to(layers.land)
+    }
+
+    if (images.ground) {
+      let c = { ...config.ground }
+      let rb = ratio * c.blur
+      if (rb < 2) {
+        c.blur = c.blur - (rb / 2) * c.blur + 1
+      } else {
+        c.blur = rb - 2
+      }
+
+      c.sx = (c.sx || 0) - ratio * 20
+      draw(images.ground, c).to(layers.ground)
+    }
+
+    if (images.grass) {
+      let c = { ...config.grass }
+      let rb = ratio * c.blur
+      if (rb < 2) {
+        c.blur = c.blur - (rb / 2) * c.blur + 1
+      } else {
+        c.blur = rb - 2
+      }
+
+      c.sx = (c.sx || 0) - ratio * 25
+      draw(images.grass, c).to(layers.grass)
+    }
+
+    if (images.threethree) {
+      let c = { ...config.threethree }
+      c.blur = c.blur - ratio * c.blur
+      c.sx = (c.sx || 0) - ratio * 30
+      draw(images.threethree, c).to(layers.threethree)
+    }
+  }
+
+  let enterPoint = {}
+  placeholder.value.addEventListener('mouseenter', (e) => {
+    const { width } = placeholder.value.getBoundingClientRect()
+    enterPoint.left = e.clientX
+    enterPoint.right = width - e.clientX
+  })
+  placeholder.value.addEventListener('mousemove', (e) => {
+    const v = e.clientX - enterPoint.left
+
+    let ratio
+    if (v < 0) {
+      ratio = v / enterPoint.left
+    } else {
+      ratio = v / enterPoint.right
+    }
+
+    requestAnimationFrame(() => render(ratio))
+  })
+  placeholder.value.addEventListener('mouseout', (e) => {
+    const v = e.clientX - enterPoint.left
+
+    let ratio, gap
+    if (v < 0) {
+      ratio = v / enterPoint.left
+      gap = 0.03
+    } else {
+      ratio = v / enterPoint.right
+      gap = -0.03
+    }
+
+    requestAnimationFrame(tick)
+    function tick() {
+      if (gap * ratio < 0) {
+        ratio = ratio + gap
+        render(ratio)
+        requestAnimationFrame(tick)
+      } else {
+        if (images.bg) {
+          draw(images.bg, config.bg).to(layers.bg)
+        }
+
+        if (images.twotwo) {
+          config.twotwo.blur = 1
+          draw(images.twotwo, config.twotwo).to(layers.twotwo)
+        }
+
+        if (images.land) {
+          draw(images.land, config.land).to(layers.land)
+        }
+
+        if (images.ground) {
+          draw(images.ground, config.ground).to(layers.ground)
+        }
+
+        if (images.grass) {
+          draw(images.grass, config.grass).to(layers.grass)
+        }
+
+        if (images.threethree) {
+          draw(images.threethree, config.threethree).to(layers.threethree)
+        }
+      }
+    }
+  })
 
   watch(
     () => images.bg,
