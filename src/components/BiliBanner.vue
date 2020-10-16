@@ -16,6 +16,16 @@
 <script setup>
 import { ref, reactive, onMounted, onBeforeMount, watch, nextTick } from 'vue'
 
+import bg from '/src/assets/bg.png'
+import twotwo from '/src/assets/22-open-eye.png'
+import twotwoCloseEye from '/src/assets/22-close-eye.png'
+import twotwoClosingEye from '/src/assets/22-closing-eye.png'
+import twotwoOpeningEye from '/src/assets/22-opening-eye.png'
+import land from '/src/assets/land.png'
+import ground from '/src/assets/ground.png'
+import grass from '/src/assets/grass.png'
+import threethree from '/src/assets/33.png'
+
 const images = reactive({
   bg: null,
   twotwo: null,
@@ -35,21 +45,15 @@ function buildImage(src) {
   })
 }
 onBeforeMount(() => {
-  buildImage('/src/assets/bg.png').then((img) => (images.bg = img))
-  buildImage('/src/assets/22-open-eye.png').then((img) => (images.twotwo = img))
-  buildImage('/src/assets/22-close-eye.png').then(
-    (img) => (images.twotwoCloseEye = img)
-  )
-  buildImage('/src/assets/22-closing-eye.png').then(
-    (img) => (images.twotwoClosingEye = img)
-  )
-  buildImage('/src/assets/22-opening-eye.png').then(
-    (img) => (images.twotwoOpeningEye = img)
-  )
-  buildImage('/src/assets/land.png').then((img) => (images.land = img))
-  buildImage('/src/assets/ground.png').then((img) => (images.ground = img))
-  buildImage('/src/assets/grass.png').then((img) => (images.grass = img))
-  buildImage('/src/assets/33.png').then((img) => (images.threethree = img))
+  buildImage(bg).then((img) => (images.bg = img))
+  buildImage(twotwo).then((img) => (images.twotwo = img))
+  buildImage(twotwoCloseEye).then((img) => (images.twotwoCloseEye = img))
+  buildImage(twotwoClosingEye).then((img) => (images.twotwoClosingEye = img))
+  buildImage(twotwoOpeningEye).then((img) => (images.twotwoOpeningEye = img))
+  buildImage(land).then((img) => (images.land = img))
+  buildImage(ground).then((img) => (images.ground = img))
+  buildImage(grass).then((img) => (images.grass = img))
+  buildImage(threethree).then((img) => (images.threethree = img))
 })
 
 export const placeholder = ref(null)
@@ -210,10 +214,10 @@ onMounted(async () => {
     let ratio, gap
     if (v < 0) {
       ratio = v / enterPoint.left
-      gap = 0.03
+      gap = 0.08
     } else {
       ratio = v / enterPoint.right
-      gap = -0.03
+      gap = -0.08
     }
 
     requestAnimationFrame(tick)
@@ -294,7 +298,6 @@ onMounted(async () => {
     width: 100%;
     height: 9.375vw;
     min-height: 95px;
-    opacity: 0.3;
   }
 
   &-layer {
