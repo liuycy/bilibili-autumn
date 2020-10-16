@@ -19,6 +19,9 @@ import { ref, reactive, onMounted, onBeforeMount, watch, nextTick } from 'vue'
 const images = reactive({
   bg: null,
   twotwo: null,
+  twotwoCloseEye: null,
+  twotwoClosingEye: null,
+  twotwoOpeningEye: null,
   land: null,
   ground: null,
   grass: null,
@@ -34,6 +37,15 @@ function buildImage(src) {
 onBeforeMount(() => {
   buildImage('/src/assets/bg.png').then((img) => (images.bg = img))
   buildImage('/src/assets/22-open-eye.png').then((img) => (images.twotwo = img))
+  buildImage('/src/assets/22-close-eye.png').then(
+    (img) => (images.twotwoCloseEye = img)
+  )
+  buildImage('/src/assets/22-closing-eye.png').then(
+    (img) => (images.twotwoClosingEye = img)
+  )
+  buildImage('/src/assets/22-opening-eye.png').then(
+    (img) => (images.twotwoOpeningEye = img)
+  )
   buildImage('/src/assets/land.png').then((img) => (images.land = img))
   buildImage('/src/assets/ground.png').then((img) => (images.ground = img))
   buildImage('/src/assets/grass.png').then((img) => (images.grass = img))
@@ -50,6 +62,14 @@ export const layers = reactive({
   grass: null,
   threethree: null,
 })
+const config = {
+  bg: { sw: 3000, sh: 250, blur: 6 },
+  twotwo: { sw: 3000, sh: 275, blur: 0 },
+  land: { sw: 3000, sh: 250, blur: 5 },
+  ground: { sx: -100, sw: 3000, sh: 250, blur: 4 },
+  grass: { sx: 150, sw: 3000, sh: 275, blur: 3 },
+  threethree: { sw: 3000, sh: 275, blur: 2 },
+}
 function draw(image, config) {
   const { sx = 0, sy = 0, sw, sh, blur: b } = config || {}
   return {
@@ -76,62 +96,59 @@ onMounted(async () => {
 
   window.addEventListener('resize', () => {
     resize(layers).with(placeholder)
-    images.bg && draw(images.bg, { sw: 3000, sh: 250, blur: 6 }).to(layers.bg)
-    images.twotwo &&
-      draw(images.twotwo, { sw: 3000, sh: 275, blur: 0 }).to(layers.twotwo)
-    images.land &&
-      draw(images.land, { sw: 3000, sh: 250, blur: 5 }).to(layers.land)
-    images.ground &&
-      draw(images.ground, { sx: -100, sw: 3000, sh: 250, blur: 4 }).to(
-        layers.ground
-      )
-    images.grass &&
-      draw(images.grass, { sx: 150, sw: 3000, sh: 275, blur: 3 }).to(
-        layers.grass
-      )
+    images.bg && draw(images.bg, config.bg).to(layers.bg)
+    images.twotwo && draw(images.twotwo, config.twotwo).to(layers.twotwo)
+    images.land && draw(images.land, config.land).to(layers.land)
+    images.ground && draw(images.ground, config.ground).to(layers.ground)
+    images.grass && draw(images.grass, config.grass).to(layers.grass)
     images.threethree &&
-      draw(images.threethree, { sw: 3000, sh: 275, blur: 2 }).to(
-        layers.threethree
-      )
+      draw(images.threethree, config.threethree).to(layers.threethree)
   })
+
+  setTimeout(wink, 4800)
+  async function wink() {
+    await new Promise((r) => setTimeout(r, 50))
+    images.twotwoClosingEye &&
+      draw(images.twotwoClosingEye, config.twotwo).to(layers.twotwo)
+    await new Promise((r) => setTimeout(r, 50))
+    images.twotwoCloseEye &&
+      draw(images.twotwoCloseEye, config.twotwo).to(layers.twotwo)
+    await new Promise((r) => setTimeout(r, 50))
+    images.twotwoOpeningEye &&
+      draw(images.twotwoOpeningEye, config.twotwo).to(layers.twotwo)
+    await new Promise((r) => setTimeout(r, 50))
+    images.twotwo && draw(images.twotwo, config.twotwo).to(layers.twotwo)
+    setTimeout(wink, 4800)
+  }
 
   watch(
     () => images.bg,
-    () => draw(images.bg, { sw: 3000, sh: 250, blur: 6 }).to(layers.bg)
+    () => draw(images.bg, config.bg).to(layers.bg)
   )
 
   watch(
     () => images.twotwo,
-    () => draw(images.twotwo, { sw: 3000, sh: 275, blur: 0 }).to(layers.twotwo)
+    () => draw(images.twotwo, config.twotwo).to(layers.twotwo)
   )
 
   watch(
     () => images.land,
-    () => draw(images.land, { sw: 3000, sh: 250, blur: 5 }).to(layers.land)
+    () => draw(images.land, config.land).to(layers.land)
   )
 
   watch(
     () => images.ground,
-    () =>
-      draw(images.ground, { sx: -100, sw: 3000, sh: 250, blur: 4 }).to(
-        layers.ground
-      )
+    () => draw(images.ground, config.ground).to(layers.ground)
   )
 
   watch(
     () => images.grass,
-    () =>
-      draw(images.grass, { sx: 150, sw: 3000, sh: 275, blur: 3 }).to(
-        layers.grass
-      )
+    () => draw(images.grass, config.grass).to(layers.grass)
   )
 
   watch(
     () => images.threethree,
-    () =>
-      draw(images.threethree, { sw: 3000, sh: 275, blur: 2 }).to(
-        layers.threethree
-      )
+    () => draw(images.threethree, config.threethree).to(layers.threethree)
   )
 })
 </script>
