@@ -5,11 +5,11 @@
     <canvas :ref="(el) => (layers.twotwo = el)" class="banner-layer"></canvas>
     <canvas :ref="(el) => (layers.land = el)" class="banner-layer"></canvas>
     <canvas :ref="(el) => (layers.ground = el)" class="banner-layer"></canvas>
-    <canvas :ref="(el) => (layers.grass = el)" class="banner-layer"></canvas>
     <canvas
       :ref="(el) => (layers.threethree = el)"
       class="banner-layer"
     ></canvas>
+    <canvas :ref="(el) => (layers.grass = el)" class="banner-layer"></canvas>
   </div>
 </template>
 
@@ -23,8 +23,8 @@ import twotwoClosingEye from '/src/assets/22-closing-eye.png'
 import twotwoOpeningEye from '/src/assets/22-opening-eye.png'
 import land from '/src/assets/land.png'
 import ground from '/src/assets/ground.png'
-import grass from '/src/assets/grass.png'
 import threethree from '/src/assets/33.png'
+import grass from '/src/assets/grass.png'
 
 const images = reactive({
   bg: null,
@@ -34,8 +34,8 @@ const images = reactive({
   twotwoOpeningEye: null,
   land: null,
   ground: null,
-  grass: null,
   threethree: null,
+  grass: null,
 })
 function buildImage(src) {
   return new Promise((resolve) => {
@@ -52,8 +52,8 @@ onBeforeMount(() => {
   buildImage(twotwoOpeningEye).then((img) => (images.twotwoOpeningEye = img))
   buildImage(land).then((img) => (images.land = img))
   buildImage(ground).then((img) => (images.ground = img))
-  buildImage(grass).then((img) => (images.grass = img))
   buildImage(threethree).then((img) => (images.threethree = img))
+  buildImage(grass).then((img) => (images.grass = img))
 })
 
 export const placeholder = ref(null)
@@ -63,16 +63,16 @@ export const layers = reactive({
   twotwo: null,
   land: null,
   ground: null,
-  grass: null,
   threethree: null,
+  grass: null,
 })
 const config = {
-  bg: { sw: 3000, sh: 250, blur: 6 },
-  twotwo: { sw: 3000, sh: 275, blur: 1 },
-  land: { sw: 3000, sh: 250, blur: 5 },
-  ground: { sx: -100, sw: 3000, sh: 250, blur: 4 },
-  grass: { sx: 150, sw: 3000, sh: 275, blur: 3 },
-  threethree: { sw: 3000, sh: 275, blur: 2 },
+  bg: { sx: 100, sw: 3000 * 0.9, sh: 250, blur: 4 },
+  twotwo: { sx: 150, sy: 25, sw: 3000 * 0.9, sh: 275 * 0.9, blur: 0 },
+  land: { sx: 155, sy: -5, sw: 3000 * 0.9, sh: 250, blur: 1 },
+  ground: { sx: 150, sw: 3000 * 0.9, sh: 250, blur: 4 },
+  threethree: { sx: 150, sy: 25, sw: 3000 * 0.9, sh: 275 * 0.9, blur: 5 },
+  grass: { sx: 165, sy: 25, sw: 3000 * 0.88, sh: 275* 0.9, blur: 6 },
 }
 function draw(image, config) {
   const { sx = 0, sy = 0, sw, sh, blur: b } = config || {}
@@ -105,9 +105,9 @@ onMounted(async () => {
     images.twotwo && draw(images.twotwo, config.twotwo).to(layers.twotwo)
     images.land && draw(images.land, config.land).to(layers.land)
     images.ground && draw(images.ground, config.ground).to(layers.ground)
-    images.grass && draw(images.grass, config.grass).to(layers.grass)
     images.threethree &&
       draw(images.threethree, config.threethree).to(layers.threethree)
+    images.grass && draw(images.grass, config.grass).to(layers.grass)
   })
 
   setTimeout(wink, 4800)
@@ -135,90 +135,56 @@ onMounted(async () => {
 
     if (images.twotwo) {
       let c = config.twotwo
-      if (ratio > 0) {
-        c.blur = 1 + 2 * ratio
-      } else {
-        c.blur = 1 + 1 * ratio
-      }
+      c.blur = Math.abs(ratio * 10)
+      c.sx = 150 - ratio * 10
       draw(images.twotwo, c).to(layers.twotwo)
     }
 
     if (images.land) {
       let c = { ...config.land }
-      let rb = ratio * c.blur
-      if (rb < 2) {
-        c.blur = c.blur - (rb / 2) * c.blur + 1
-      } else {
-        c.blur = rb - 2
-      }
-
-      c.sx = (c.sx || 0) - ratio * 15
+      c.blur = Math.abs(c.blur - ratio * 4)
+      c.sx = (c.sx || 0) - ratio * 30
       draw(images.land, c).to(layers.land)
     }
 
     if (images.ground) {
       let c = { ...config.ground }
-      let rb = ratio * c.blur
-      if (rb < 2) {
-        c.blur = c.blur - (rb / 2) * c.blur + 1
-      } else {
-        c.blur = rb - 2
-      }
-
-      c.sx = (c.sx || 0) - ratio * 20
+      c.blur = Math.abs(c.blur - ratio * 8)
+      c.sx = (c.sx || 0) - ratio * 40
       draw(images.ground, c).to(layers.ground)
-    }
-
-    if (images.grass) {
-      let c = { ...config.grass }
-      let rb = ratio * c.blur
-      if (rb < 2) {
-        c.blur = c.blur - (rb / 2) * c.blur + 1
-      } else {
-        c.blur = rb - 2
-      }
-
-      c.sx = (c.sx || 0) - ratio * 25
-      draw(images.grass, c).to(layers.grass)
     }
 
     if (images.threethree) {
       let c = { ...config.threethree }
-      c.blur = c.blur - ratio * c.blur
-      c.sx = (c.sx || 0) - ratio * 30
+      c.blur = Math.abs(c.blur - ratio * 8)
+      c.sx = (c.sx || 0) - ratio * 90
       draw(images.threethree, c).to(layers.threethree)
+    }
+
+    if (images.grass) {
+      let c = { ...config.grass }
+      c.blur = Math.abs(c.blur - ratio * 6)
+      c.sx = (c.sx || 0) - ratio * 110
+      draw(images.grass, c).to(layers.grass)
     }
   }
 
   let enterPoint = {}
   placeholder.value.addEventListener('mouseenter', (e) => {
     const { width } = placeholder.value.getBoundingClientRect()
-    enterPoint.left = e.clientX
-    enterPoint.right = width - e.clientX
+    enterPoint.x = e.clientX
+    enterPoint.w = width
   })
   placeholder.value.addEventListener('mousemove', (e) => {
-    const v = e.clientX - enterPoint.left
-
-    let ratio
-    if (v < 0) {
-      ratio = v / enterPoint.left
-    } else {
-      ratio = v / enterPoint.right
-    }
+    const v = e.clientX - enterPoint.x
+    const ratio = v / enterPoint.w
 
     requestAnimationFrame(() => render(ratio))
   })
   placeholder.value.addEventListener('mouseout', (e) => {
-    const v = e.clientX - enterPoint.left
-
-    let ratio, gap
-    if (v < 0) {
-      ratio = v / enterPoint.left
-      gap = 0.08
-    } else {
-      ratio = v / enterPoint.right
-      gap = -0.08
-    }
+    const v = e.clientX - enterPoint.x
+    let ratio = v / enterPoint.w
+    const gap = 0.08 * (ratio < 0 ? 1 : -1)
 
     requestAnimationFrame(tick)
     function tick() {
@@ -232,7 +198,8 @@ onMounted(async () => {
         }
 
         if (images.twotwo) {
-          config.twotwo.blur = 1
+          config.twotwo.blur = 0
+          config.twotwo.sx = 150
           draw(images.twotwo, config.twotwo).to(layers.twotwo)
         }
 
@@ -244,12 +211,12 @@ onMounted(async () => {
           draw(images.ground, config.ground).to(layers.ground)
         }
 
-        if (images.grass) {
-          draw(images.grass, config.grass).to(layers.grass)
-        }
-
         if (images.threethree) {
           draw(images.threethree, config.threethree).to(layers.threethree)
+        }
+
+        if (images.grass) {
+          draw(images.grass, config.grass).to(layers.grass)
         }
       }
     }
@@ -276,13 +243,13 @@ onMounted(async () => {
   )
 
   watch(
-    () => images.grass,
-    () => draw(images.grass, config.grass).to(layers.grass)
+    () => images.threethree,
+    () => draw(images.threethree, config.threethree).to(layers.threethree)
   )
 
   watch(
-    () => images.threethree,
-    () => draw(images.threethree, config.threethree).to(layers.threethree)
+    () => images.grass,
+    () => draw(images.grass, config.grass).to(layers.grass)
   )
 })
 </script>
