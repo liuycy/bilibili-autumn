@@ -1,9 +1,11 @@
 {
   "name": "blibili-autumn",
-  "version": "0.0.0",
+  "version": "0.0.1",
+  "license": "MIT",
   "scripts": {
     "dev": "vite",
-    "build": "vite build"
+    "build": "vite build",
+    "deploy": "vite build --base=/bilibili-autumn"
   },
   "dependencies": {},
   "devDependencies": {
