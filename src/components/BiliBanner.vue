@@ -56,9 +56,9 @@ onBeforeMount(() => {
   buildImage(grass).then((img) => (images.grass = img))
 })
 
-export const placeholder = ref(null)
+const placeholder = ref(null)
 
-export const layers = reactive({
+const layers = reactive({
   bg: null,
   twotwo: null,
   land: null,
